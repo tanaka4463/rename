@@ -6,6 +6,7 @@ from PyQt5 import QtWidgets
 # 標準モジュール
 import sys
 import os
+import re
 
 
 class MainWindow(QWidget):
@@ -24,6 +25,7 @@ class MainWindow(QWidget):
         self.bottom_flag = False
         self.serialNumber_flag = False
         self.all_change_flag = False
+        self.delete_flag = False
         self.change_name = None
         self.counter = None
         self.p = 0
@@ -45,6 +47,7 @@ class MainWindow(QWidget):
         self.bottomCheckbox.stateChanged.connect(self.bottomCheckBoxChangedAction)
         self.serialNumberCheckbox.stateChanged.connect(self.serialNumberCheckBoxChangedAction)
         self.allChangeCheckbox.stateChanged.connect(self.allChangeCheckBoxChangedAction)
+        self.deleteCheckbox.stateChanged.connect(self.deleteCheckBoxChangedAction)
 
     def selectFiles(self):
         self.run_count = 0
@@ -99,6 +102,8 @@ class MainWindow(QWidget):
                             base_name, ext = os.path.splitext(self.base_name)
                             self.change_name = os.path.join(self.dir_name, str(i + 1) + '_' + self.addText.text() + ext)
                             self.display_name = str(i + 1) + '_' + self.addText.text() + ext
+                        
+
                     # bottom_flagがTrueの場合
                     if self.bottom_flag:
                         base_name, ext = os.path.splitext(self.base_name)
@@ -113,6 +118,12 @@ class MainWindow(QWidget):
                             base_name, ext = os.path.splitext(self.base_name)
                             self.change_name = os.path.join(self.dir_name, self.addText.text() + str(i + 1) + '_' + ext)
                             self.display_name = self.addText.text() + '_' + str(i + 1) +  ext
+
+                    # delete_flagがTrueの場合
+                    if self.delete_flag:
+                        base_name, ext = os.path.splitext(self.base_name)
+                        self.change_name = os.path.join(self.dir_name, re.sub(self.addText.text(), '', base_name) + ext)
+                        self.display_name = re.sub(self.addText.text(), '', base_name) + ext
 
 
                     # new file nameを保持
@@ -147,6 +158,7 @@ class MainWindow(QWidget):
                 self.undo_able_flag = False
                 self.run_count = 1
 
+    # top_check
     def topCheckBoxChangedAction(self, state):
         if (QtCore.Qt.Checked == state):
             self.top_flag = True
@@ -157,6 +169,7 @@ class MainWindow(QWidget):
             self.bottom_flag = True
             self.bottomCheckbox.setChecked(True)
 
+    # bottom_check
     def bottomCheckBoxChangedAction(self, state):
         if (QtCore.Qt.Checked == state):
             self.top_flag = False
@@ -167,18 +180,28 @@ class MainWindow(QWidget):
             self.bottom_flag = False
             self.topCheckbox.setChecked(True)
 
+    # serial_check
     def serialNumberCheckBoxChangedAction(self, state):
         if (QtCore.Qt.Checked == state):
             self.serialNumber_flag = True
         else:
             self.serialNumber_flag = False
 
+    # all_change_check
     def allChangeCheckBoxChangedAction(self, state):
         if (QtCore.Qt.Checked == state):
             self.all_change_flag = True
 
         else:
             self.all_change_flag = False
+
+    # delete_check
+    def deleteCheckBoxChangedAction(self, state):
+        if (QtCore.Qt.Checked == state):
+            self.delete_flag = True
+
+        else:
+            self.delete_flag = False
 
 
     def createWidgets(self):
@@ -199,6 +222,8 @@ class MainWindow(QWidget):
         self.Hbox.addWidget(self.serialNumberCheckbox)
         self.allChangeCheckbox = QCheckBox("all_change")
         self.Hbox.addWidget(self.allChangeCheckbox)
+        self.deleteCheckbox = QCheckBox("delete")
+        self.Hbox.addWidget(self.deleteCheckbox)
 
         self.review_button = QPushButton('review')
         self.review_button.setFont(self.font)
